@@ -105,8 +105,10 @@ export class AuthController {
 
       const roles = user.profiles.map((profile) => profile.type);
 
+      delete user.refreshToken;
+
       return res.json({
-        ...user,
+        user,
         roles,
       });
     } catch (error: any) {
