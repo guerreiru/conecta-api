@@ -1,7 +1,7 @@
 import { compare } from "bcrypt";
 import { AppDataSource } from "../database";
 import { User } from "../entities/User";
-import { HttpError } from "../utils/errors/HttpError";
+import { HttpError } from "../utils/httpError";
 import {
   generateAccessToken,
   generateRefreshToken,
@@ -25,8 +25,17 @@ export class AuthService {
 
     const roles = profiles.map((profile) => profile.type);
 
-    const accessToken = generateAccessToken(user.id, roles);
-    const refreshToken = generateRefreshToken(user.id, roles);
+    const accessToken = generateAccessToken({
+      id: user.id,
+      name: user.name,
+      roles,
+    });
+
+    const refreshToken = generateRefreshToken({
+      id: user.id,
+      name: user.name,
+      roles,
+    });
 
     user.refreshToken = refreshToken;
 
@@ -60,8 +69,16 @@ export class AuthService {
 
     const roles = profiles.map((profile) => profile.type);
 
-    const newAccessToken = generateAccessToken(user.id, roles);
-    const newRefreshToken = generateRefreshToken(user.id, roles);
+    const newAccessToken = generateAccessToken({
+      id: user.id,
+      name: user.name,
+      roles,
+    });
+    const newRefreshToken = generateRefreshToken({
+      id: user.id,
+      name: user.name,
+      roles,
+    });
 
     user.refreshToken = newRefreshToken;
     await this.userRepo.save(user);
@@ -81,8 +98,14 @@ export class AuthService {
   async findUserByEmailWithPassword(email: string) {
     return this.userRepo.findOne({
       where: { email },
-      select: ["id", "email", "password"],
-      relations: ["profiles", "profiles.provider", "profiles.company"],
+      select: ["id", "email", "password", "name"],
+      relations: {
+        profiles: {
+          user: true,
+          company: true,
+          provider: true,
+        },
+      },
     });
   }
 }

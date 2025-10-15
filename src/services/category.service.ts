@@ -1,6 +1,6 @@
 import { AppDataSource } from "../database";
 import { Category } from "../entities/Category";
-import { HttpError } from "../utils/errors/HttpError";
+import { HttpError } from "../utils/httpError";
 
 export class CategoryService {
   private categoryRepository = AppDataSource.getRepository(Category);

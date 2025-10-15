@@ -1,6 +1,6 @@
 import { AppDataSource } from "../database";
 import { State } from "../entities/State";
-import { HttpError } from "../utils/errors/HttpError";
+import { HttpError } from "../utils/httpError";
 
 export class StateService {
   private stateRepository = AppDataSource.getRepository(State);

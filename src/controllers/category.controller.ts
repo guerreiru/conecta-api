@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { CategoryService } from "../services/category.service";
-import { HttpError } from "../utils/errors/HttpError";
+import { HttpError } from "../utils/httpError";
 
 const categoryService = new CategoryService();
 

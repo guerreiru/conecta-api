@@ -2,7 +2,7 @@ import { FindOperator, ILike } from "typeorm";
 import { AppDataSource } from "../database";
 import { City } from "../entities/City";
 import { State } from "../entities/State";
-import { HttpError } from "../utils/errors/HttpError";
+import { HttpError } from "../utils/httpError";
 
 type FindAllWhereOptions = {
   name?: FindOperator<string>;

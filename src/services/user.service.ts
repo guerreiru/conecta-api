@@ -2,14 +2,13 @@ import * as bcrypt from "bcrypt";
 import { AppDataSource } from "../database";
 import { User } from "../entities/User";
 import { UserRole } from "../types/UserRole";
-import { HttpError } from "../utils/errors/HttpError";
+import { HttpError } from "../utils/httpError";
 import { ProfileService } from "./profile.service";
 
 interface CreateUserData {
   name: string;
   email: string;
   password: string;
-  profileType: UserRole;
 }
 
 const profileService = new ProfileService();
@@ -17,19 +16,15 @@ const profileService = new ProfileService();
 export class UserService {
   private userRepository = AppDataSource.getRepository(User);
 
-  async create({
-    profileType,
-    email,
-    name,
-    password,
-  }: CreateUserData): Promise<User> {
+  async create({ email, name, password }: CreateUserData): Promise<User> {
     const existingUser = await this.findByEmail(email);
     if (existingUser) {
       throw new HttpError("Este email já está cadastrado", 409);
     }
 
     const validProfileTypes: UserRole[] = ["client", "company", "provider"];
-    if (!validProfileTypes.includes(profileType)) {
+
+    if (!validProfileTypes.includes("client")) {
       throw new HttpError("Tipo de perfil inválido.", 400);
     }
 
@@ -45,7 +40,7 @@ export class UserService {
 
       const savedUser = await this.userRepository.save(user);
 
-      await profileService.create({ type: profileType, user: savedUser });
+      await profileService.create({ type: "client", user: savedUser });
 
       const userWithProfile = await this.findById(savedUser.id);
 
@@ -90,6 +85,7 @@ export class UserService {
 
   async update(id: string, data: Partial<User>): Promise<User | null> {
     const user = await this.userRepository.findOneBy({ id });
+
     if (!user) return null;
 
     Object.assign(user, data);

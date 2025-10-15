@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { CityService } from "../services/city.service";
-import { HttpError } from "../utils/errors/HttpError";
+import { HttpError } from "../utils/httpError";
 
 const cityService = new CityService();
 

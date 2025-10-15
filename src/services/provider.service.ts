@@ -3,7 +3,7 @@ import { AppDataSource } from "../database";
 import { Provider } from "../entities/Provider";
 import { Profile } from "../entities/Profile";
 import { User } from "../entities/User";
-import { HttpError } from "../utils/errors/HttpError";
+import { HttpError } from "../utils/httpError";
 import { City } from "../entities/City";
 import { State } from "../entities/State";
 import { Address } from "../entities/Address";

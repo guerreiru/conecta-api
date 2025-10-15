@@ -1,4 +1,5 @@
-import { Brackets, FindOperator, ILike } from "typeorm";
+import { isUUID } from "class-validator";
+import { Brackets, FindOperator } from "typeorm";
 import { AppDataSource } from "../database";
 import { Category } from "../entities/Category";
 import { City } from "../entities/City";
@@ -6,8 +7,7 @@ import { Company } from "../entities/Company";
 import { Provider } from "../entities/Provider";
 import { Service } from "../entities/Service";
 import { State } from "../entities/State";
-import { HttpError } from "../utils/errors/HttpError";
-import { isUUID } from "class-validator";
+import { HttpError } from "../utils/httpError";
 
 type CreateService = {
   title: string;

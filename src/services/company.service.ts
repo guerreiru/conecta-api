@@ -3,7 +3,7 @@ import { AppDataSource } from "../database";
 import { Company } from "../entities/Company";
 import { Profile } from "../entities/Profile";
 import { User } from "../entities/User";
-import { HttpError } from "../utils/errors/HttpError";
+import { HttpError } from "../utils/httpError";
 import { City } from "../entities/City";
 import { State } from "../entities/State";
 import { Address } from "../entities/Address";
@@ -67,14 +67,84 @@ export class CompanyService {
 
   async findAll(): Promise<Company[]> {
     return this.companyRepository.find({
-      relations: ["profile", "services", "address"],
+      relations: ["profile", "profile.user", "services", "address"],
+      select: {
+        id: true,
+        companyName: true,
+        specialty: true,
+        bio: true,
+        address: {
+          id: true,
+          zipCode: true,
+          street: true,
+          number: true,
+          neighborhood: true,
+          stateName: true,
+          stateId: true,
+          cityName: true,
+          cityId: true,
+          website: true,
+          phone: true,
+        },
+        profile: {
+          id: true,
+          type: true,
+          user: {
+            id: true,
+            name: true,
+            email: true,
+          },
+        },
+        services: {
+          id: true,
+          title: true,
+          description: true,
+          price: true,
+          typeOfChange: true,
+        },
+      },
     });
   }
 
   async findById(id: string): Promise<Company | null> {
     return this.companyRepository.findOne({
       where: { id },
-      relations: ["profile", "services", "address"],
+      relations: ["profile", "profile.user", "services", "address"],
+      select: {
+        id: true,
+        companyName: true,
+        specialty: true,
+        bio: true,
+        address: {
+          id: true,
+          zipCode: true,
+          street: true,
+          number: true,
+          neighborhood: true,
+          stateName: true,
+          stateId: true,
+          cityName: true,
+          cityId: true,
+          website: true,
+          phone: true,
+        },
+        profile: {
+          id: true,
+          type: true,
+          user: {
+            id: true,
+            name: true,
+            email: true,
+          },
+        },
+        services: {
+          id: true,
+          title: true,
+          description: true,
+          price: true,
+          typeOfChange: true,
+        },
+      },
     });
   }
 
