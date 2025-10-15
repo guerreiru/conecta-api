@@ -11,7 +11,8 @@ const app = express();
 
 app.use(
   cors({
-    origin: "https://conecta-theta-lime.vercel.app",
+    origin: ["https://conecta-theta-lime.vercel.app"],
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
     credentials: true,
   })
 );
