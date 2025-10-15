@@ -10,10 +10,12 @@ export class AuthController {
   static async login(req: Request, res: Response) {
     const { email, password } = req.body;
 
-    if (!email || !password) {
-      return res
-        .status(400)
-        .json({ message: "Os campos 'email' e 'password' são obrigatórios" });
+    if (!email || typeof email !== "string" || !/^\S+@\S+\.\S+$/.test(email)) {
+      return res.status(400).json({ message: "Credenciais inválidas" });
+    }
+
+    if (!password || typeof password !== "string") {
+      return res.status(400).json({ message: "Credenciais inválidas" });
     }
 
     try {

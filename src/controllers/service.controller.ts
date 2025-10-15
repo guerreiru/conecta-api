@@ -1,7 +1,8 @@
 import { Request, Response } from "express";
 import { ServiceService } from "../services/service.service";
-import { HttpError } from "../utils/errors/HttpError";
+import { HttpError } from "../utils/httpError";
 import { isValidPrice } from "../utils/isValidPrice";
+import { isUUID } from "class-validator";
 
 const serviceService = new ServiceService();
 
@@ -63,10 +64,17 @@ export class ServiceController {
 
   static async getById(req: Request, res: Response) {
     const { id } = req.params;
+
+    if (!id || isUUID(id)) {
+      return res.status(400).json({
+        message: "Id do serviço não informado ou formato inválido",
+      });
+    }
+
     const service = await serviceService.findById(id);
 
     if (!service) {
-      return res.status(404).json({ message: "Service not found" });
+      return res.status(404).json({ message: "Serviço não encontrado" });
     }
 
     return res.json(service);
@@ -93,10 +101,17 @@ export class ServiceController {
 
   static async update(req: Request, res: Response) {
     const { id } = req.params;
+
+    if (!id || isUUID(id)) {
+      return res.status(400).json({
+        message: "Id do serviço não informado ou formato inválido",
+      });
+    }
+
     const updated = await serviceService.update(id, req.body);
 
     if (!updated) {
-      return res.status(404).json({ message: "Service not found" });
+      return res.status(404).json({ message: "Serviço não encontrado" });
     }
 
     return res.json(updated);
@@ -104,10 +119,17 @@ export class ServiceController {
 
   static async delete(req: Request, res: Response) {
     const { id } = req.params;
+
+    if (!id || isUUID(id)) {
+      return res.status(400).json({
+        message: "Id do serviço não informado ou formato inválido",
+      });
+    }
+
     const deleted = await serviceService.delete(id);
 
     if (!deleted) {
-      return res.status(404).json({ message: "Service not found" });
+      return res.status(404).json({ message: "Serviço não encontrado" });
     }
 
     return res.status(204).send();
