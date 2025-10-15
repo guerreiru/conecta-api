@@ -10,6 +10,7 @@ import { routes } from "./routes";
 
 const app = express();
 
+app.use(helmet());
 app.use(
   cors({
     origin: ["https://conecta-theta-lime.vercel.app", "http://localhost:3000"],
@@ -18,7 +19,6 @@ app.use(
   })
 );
 
-app.use(helmet());
 app.use(express.json());
 app.use(cookieParser());
 
@@ -29,14 +29,13 @@ const limiter = rateLimit({
   legacyHeaders: false,
   message: { message: "Muitas requisições, tente novamente em breve." },
 });
-
 app.use(limiter);
-
-app.use(routes);
 
 app.get("/", (_: Request, res: Response) => {
   res.send("API está rodando!");
 });
+
+app.use(routes);
 
 app.use(errorMiddleware);
 
