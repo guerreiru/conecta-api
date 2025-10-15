@@ -1,8 +1,5 @@
 import { Request, Response } from "express";
 import { AuthService } from "../services/auth.service";
-import { AppDataSource } from "../database";
-import { verify } from "jsonwebtoken";
-import { User } from "../entities/User";
 
 const authService = new AuthService();
 
@@ -29,14 +26,18 @@ export class AuthController {
         maxAge: 7 * 24 * 60 * 60 * 1000,
       });
 
-      return res.json(result);
+      return res.json({
+        accessToken: result.accessToken,
+        refreshToken: result.refreshToken,
+        user: result.user,
+      });
     } catch (error: any) {
       return res.status(400).json({ message: error.message });
     }
   }
 
   static async refresh(req: Request, res: Response) {
-    const token = req.cookies.refreshToken;
+    const token = req.body.refreshToken || req.cookies.refreshToken;
 
     if (!token) {
       return res.status(401).json({ message: "Token ausente" });
@@ -53,8 +54,10 @@ export class AuthController {
         maxAge: 7 * 24 * 60 * 60 * 1000,
       });
 
-      return res.json({ accessToken: result.accessToken });
+      return res.json(result);
     } catch (error: any) {
+      console.error(error);
+
       return res.status(403).json({ message: error.message });
     }
   }
@@ -72,47 +75,6 @@ export class AuthController {
       return res.status(200).json({ message: "Logout realizado com sucesso" });
     } catch (error: any) {
       return res.status(500).json({ message: "Erro ao realizar logout" });
-    }
-  }
-
-  static async me(req: Request, res: Response) {
-    const authHeader = req.headers.authorization;
-
-    if (!authHeader) {
-      return res.status(401).json({ message: "Token não fornecido" });
-    }
-
-    const token = authHeader.split(" ")[1];
-
-    try {
-      const decoded: any = verify(token, process.env.ACCESS_TOKEN_SECRET!);
-
-      const userRepository = AppDataSource.getRepository(User);
-      const user = await userRepository.findOne({
-        where: { id: decoded.userId },
-        relations: {
-          profiles: {
-            provider: true,
-            company: true,
-            user: true,
-          },
-        },
-      });
-
-      if (!user) {
-        return res.status(404).json({ message: "Usuário não encontrado" });
-      }
-
-      const roles = user.profiles.map((profile) => profile.type);
-
-      delete user.refreshToken;
-
-      return res.json({
-        user,
-        roles,
-      });
-    } catch (error: any) {
-      return res.status(401).json({ message: "Token inválido ou expirado" });
     }
   }
 }

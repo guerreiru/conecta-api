@@ -25,6 +25,9 @@ export class User {
   @Column({ nullable: true, type: "varchar" })
   refreshToken?: string | null;
 
+  @Column({ type: "timestamp with time zone", nullable: true })
+  refreshTokenExpires?: Date | null;
+
   @OneToMany(() => Profile, (profile) => profile.user, { cascade: true })
   profiles: Profile[];
 
