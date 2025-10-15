@@ -18,7 +18,7 @@ export class CompanyController {
   static async getById(req: Request, res: Response) {
     const { id } = req.params;
 
-    if (!id || isUUID(id)) {
+    if (!id || !isUUID(id)) {
       return res
         .status(400)
         .json({ message: "Id da empresa não informado ou formato inválido" });
@@ -35,7 +35,7 @@ export class CompanyController {
   static async update(req: Request, res: Response) {
     const { id } = req.params;
 
-    if (!id || isUUID(id)) {
+    if (!id || !isUUID(id)) {
       return res
         .status(400)
         .json({ message: "Id da empresa não informado ou formato inválido" });
@@ -53,7 +53,7 @@ export class CompanyController {
   static async delete(req: Request, res: Response) {
     const { id } = req.params;
 
-    if (!id || isUUID(id)) {
+    if (!id || !isUUID(id)) {
       return res
         .status(400)
         .json({ message: "Id da empresa não informado ou formato inválido" });

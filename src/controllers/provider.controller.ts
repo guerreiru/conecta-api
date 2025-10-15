@@ -18,7 +18,7 @@ export class ProviderController {
   static async getById(req: Request, res: Response) {
     const { id } = req.params;
 
-    if (!id || isUUID(id)) {
+    if (!id || !isUUID(id)) {
       return res.status(400).json({
         message: "Id do profissional não informado ou formato inválido",
       });
@@ -36,7 +36,7 @@ export class ProviderController {
   static async update(req: Request, res: Response) {
     const { id } = req.params;
 
-    if (!id || isUUID(id)) {
+    if (!id || !isUUID(id)) {
       return res.status(400).json({
         message: "Id do profissional não informado ou formato inválido",
       });
@@ -54,7 +54,7 @@ export class ProviderController {
   static async delete(req: Request, res: Response) {
     const { id } = req.params;
 
-    if (!id || isUUID(id)) {
+    if (!id || !isUUID(id)) {
       return res.status(400).json({
         message: "Id do profissional não informado ou formato inválido",
       });

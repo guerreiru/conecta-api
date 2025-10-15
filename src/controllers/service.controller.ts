@@ -65,7 +65,7 @@ export class ServiceController {
   static async getById(req: Request, res: Response) {
     const { id } = req.params;
 
-    if (!id || isUUID(id)) {
+    if (!id || !isUUID(id)) {
       return res.status(400).json({
         message: "Id do serviço não informado ou formato inválido",
       });
@@ -102,7 +102,7 @@ export class ServiceController {
   static async update(req: Request, res: Response) {
     const { id } = req.params;
 
-    if (!id || isUUID(id)) {
+    if (!id || !isUUID(id)) {
       return res.status(400).json({
         message: "Id do serviço não informado ou formato inválido",
       });
@@ -120,7 +120,7 @@ export class ServiceController {
   static async delete(req: Request, res: Response) {
     const { id } = req.params;
 
-    if (!id || isUUID(id)) {
+    if (!id || !isUUID(id)) {
       return res.status(400).json({
         message: "Id do serviço não informado ou formato inválido",
       });
