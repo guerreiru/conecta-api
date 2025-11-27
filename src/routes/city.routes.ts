@@ -5,19 +5,9 @@ import { authenticate } from "../middlewares/authenticate";
 
 export const cityRoutes = Router();
 
-cityRoutes.post(
-  "/",
-  authenticate,
-  authorizeRoles("seupai"),
-  CityController.create
-);
+cityRoutes.post("/", CityController.create);
 
-cityRoutes.post(
-  "/createMany",
-  authenticate,
-  authorizeRoles("seupai"),
-  CityController.createMany
-);
+cityRoutes.post("/createMany", CityController.createMany);
 
 cityRoutes.get("/", CityController.getAll);
 
@@ -25,16 +15,6 @@ cityRoutes.get("/state/:id", CityController.getAllByStateId);
 
 cityRoutes.get("/:id", CityController.getById);
 
-cityRoutes.put(
-  "/:id",
-  authenticate,
-  authorizeRoles("seupai"),
-  CityController.update
-);
+cityRoutes.put("/:id", CityController.update);
 
-cityRoutes.delete(
-  "/:id",
-  authenticate,
-  authorizeRoles("seupai"),
-  CityController.delete
-);
+cityRoutes.delete("/:id", CityController.delete);

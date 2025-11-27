@@ -8,15 +8,8 @@ const serviceService = new ServiceService();
 
 export class ServiceController {
   static async create(req: Request, res: Response) {
-    const {
-      title,
-      price,
-      typeOfChange,
-      description,
-      categoryId,
-      companyId,
-      providerId,
-    } = req.body;
+    const { title, price, typeOfChange, description, categoryId, userId } =
+      req.body;
 
     if (!typeOfChange || typeOfChange.trim() === "") {
       throw new HttpError("O tipo de cobrança é obrigatório");
@@ -38,11 +31,8 @@ export class ServiceController {
       throw new HttpError("A categoria é obrigatória");
     }
 
-    if (!providerId && !companyId) {
-      throw new HttpError(
-        "O serviço deve pertencer a uma empresa ou um prestador de serviço",
-        400
-      );
+    if (!userId) {
+      throw new HttpError("Id do usuário é obrigatório", 400);
     }
 
     const service = await serviceService.create({
@@ -50,8 +40,7 @@ export class ServiceController {
       price,
       description,
       categoryId,
-      companyId,
-      providerId,
+      userId,
       typeOfChange,
     });
     return res.status(201).json(service);

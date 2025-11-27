@@ -24,6 +24,7 @@ export class UserController {
       name,
       email,
       password,
+      ...req.body,
     });
 
     return res.status(201).json(user);

@@ -3,10 +3,15 @@ import {
   CreateDateColumn,
   Entity,
   OneToMany,
+  OneToOne,
+  JoinColumn,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from "typeorm";
-import { Profile } from "./Profile";
+import { Address } from "./Address";
+import { Service } from "./Service";
+
+export type UserRole = "client" | "provider";
 
 @Entity("users")
 export class User {
@@ -22,14 +27,30 @@ export class User {
   @Column({ type: "varchar", length: 100, select: false })
   password: string;
 
+  @Column({ type: "varchar", length: 20, default: "client" })
+  role: UserRole;
+
+  @Column({ nullable: true, type: "varchar", length: 100 })
+  specialty?: string;
+
+  @Column({ nullable: true, type: "varchar", length: 255 })
+  bio?: string;
+
+  @Column({ type: "boolean", default: false })
+  hasActivePlan: boolean;
+
+  @OneToOne(() => Address, { nullable: true })
+  @JoinColumn()
+  address?: Address;
+
+  @OneToMany(() => Service, (service) => service.user, { nullable: true })
+  services?: Service[];
+
   @Column({ nullable: true, type: "varchar" })
   refreshToken?: string | null;
 
   @Column({ type: "timestamp with time zone", nullable: true })
   refreshTokenExpires?: Date | null;
-
-  @OneToMany(() => Profile, (profile) => profile.user, { cascade: true })
-  profiles: Profile[];
 
   @CreateDateColumn()
   createdAt: Date;
