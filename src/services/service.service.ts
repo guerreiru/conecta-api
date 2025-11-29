@@ -6,7 +6,7 @@ import { Service } from "../entities/Service";
 import { User } from "../entities/User";
 import { HttpError } from "../utils/httpError";
 
-const FREE_PLAN_SERVICE_LIMIT = 2;
+const FREE_PLAN_SERVICE_LIMIT = 1;
 
 type CreateService = {
   title: string;
