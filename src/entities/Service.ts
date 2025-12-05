@@ -9,6 +9,7 @@ import {
 } from "typeorm";
 import { Category } from "./Category";
 import { User } from "./User";
+import { HighlightLevel } from "../types/HighlightLevel";
 
 @Entity("services")
 export class Service {
@@ -31,6 +32,16 @@ export class Service {
     nullable: false,
   })
   typeOfChange: string;
+
+  @Column({ type: "boolean", default: false })
+  isHighlighted: boolean;
+
+  @Column({
+    type: "enum",
+    enum: HighlightLevel,
+    nullable: true,
+  })
+  highlightLevel?: HighlightLevel;
 
   @ManyToOne(() => Category, (category) => category.services)
   category: Category;
