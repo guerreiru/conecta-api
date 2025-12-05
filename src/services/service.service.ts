@@ -77,6 +77,8 @@ export class ServiceService {
       description,
       category,
       user: user ? user : undefined,
+      isHighlighted: false,
+      highlightLevel: undefined,
     };
 
     const service = this.serviceRepository.create(data);
@@ -142,10 +144,39 @@ export class ServiceService {
       );
     }
 
-    const [services, total] = await query
-      .skip((page - 1) * limit)
-      .take(limit)
-      .getManyAndCount();
+    // Buscar todos os resultados para ordenar no código
+    const [allServices, total] = await query.getManyAndCount();
+
+    // Ordenação manual: destacados primeiro, depois por nível (enterprise > premium > pro), e por data
+    const sortedServices = allServices.sort((a, b) => {
+      // 1. Destacados primeiro
+      if (a.isHighlighted !== b.isHighlighted) {
+        return a.isHighlighted ? -1 : 1;
+      }
+
+      // 2. Se ambos destacados, ordenar por nível
+      if (a.isHighlighted && b.isHighlighted) {
+        const levelPriority = { enterprise: 3, premium: 2, pro: 1 };
+        const aPriority = a.highlightLevel
+          ? levelPriority[a.highlightLevel]
+          : 0;
+        const bPriority = b.highlightLevel
+          ? levelPriority[b.highlightLevel]
+          : 0;
+
+        if (aPriority !== bPriority) {
+          return bPriority - aPriority; // DESC
+        }
+      }
+
+      // 3. Por data de criação
+      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+    });
+
+    // Aplicar paginação
+    const startIndex = (page - 1) * limit;
+    const endIndex = startIndex + limit;
+    const services = sortedServices.slice(startIndex, endIndex);
 
     return {
       data: services,
@@ -174,7 +205,16 @@ export class ServiceService {
       service.category = category;
     }
 
-    const { categoryId, ...rest } = data;
+    // Sanitizar campos protegidos contra manipulação
+    const { categoryId, isHighlighted, highlightLevel, ...rest } = data;
+
+    // Se tentar alterar campos protegidos, bloquear
+    if (isHighlighted !== undefined || highlightLevel !== undefined) {
+      throw new HttpError(
+        "Campos de destaque só podem ser alterados por administradores",
+        403
+      );
+    }
 
     Object.assign(service, rest);
 
@@ -184,5 +224,43 @@ export class ServiceService {
   async delete(id: string): Promise<boolean> {
     const result = await this.serviceRepository.delete(id);
     return !!result.affected;
+  }
+
+  /**
+   * Método administrativo para gerenciar destaque de serviços
+   * Deve ser chamado apenas por rotas protegidas com role "nanal"
+   */
+  async updateHighlight(
+    id: string,
+    isHighlighted: boolean,
+    highlightLevel?: "pro" | "premium" | "enterprise"
+  ): Promise<Service | null> {
+    const service = await this.serviceRepository.findOne({
+      where: { id },
+      relations: ["category", "user", "user.address"],
+    });
+
+    if (!service) {
+      throw new HttpError("Serviço não encontrado", 404);
+    }
+
+    // Validação: se destacado, highlightLevel é obrigatório
+    if (isHighlighted && !highlightLevel) {
+      throw new HttpError(
+        "highlightLevel é obrigatório quando isHighlighted é true",
+        400
+      );
+    }
+
+    // Se não está destacado, limpar highlightLevel
+    if (!isHighlighted) {
+      service.isHighlighted = false;
+      service.highlightLevel = undefined;
+    } else {
+      service.isHighlighted = true;
+      service.highlightLevel = highlightLevel as any;
+    }
+
+    return await this.serviceRepository.save(service);
   }
 }

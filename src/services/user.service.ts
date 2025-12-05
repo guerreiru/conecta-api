@@ -2,6 +2,7 @@ import * as bcrypt from "bcrypt";
 import { AppDataSource } from "../database";
 import { Address } from "../entities/Address";
 import { City } from "../entities/City";
+import { Service } from "../entities/Service";
 import { State } from "../entities/State";
 import { User } from "../entities/User";
 import { UserRole } from "../types/UserRole";
@@ -15,6 +16,7 @@ type CreateUserDTO = {
   specialty?: string;
   bio?: string;
   address?: Address & { stateId: string; cityId: string };
+  requestingUserId?: string;
 } & Partial<User>;
 
 export class UserService {
@@ -35,6 +37,28 @@ export class UserService {
       const existingUser = await this.findByEmail(email);
       if (existingUser) {
         throw new HttpError("Este email já está cadastrado", 409);
+      }
+
+      const privilegedRoles: UserRole[] = ["nanal"];
+      if (privilegedRoles.includes(role)) {
+        if (!userData.requestingUserId) {
+          throw new HttpError(
+            "Apenas usuários autenticados com permissões de administrador podem criar usuários com role privilegiada",
+            403
+          );
+        }
+
+        const requestingUser = await this.userRepository.findOne({
+          where: { id: userData.requestingUserId },
+          select: ["id", "role"],
+        });
+
+        if (!requestingUser || !privilegedRoles.includes(requestingUser.role)) {
+          throw new HttpError(
+            "Você não tem permissão para criar usuários com role privilegiada",
+            403
+          );
+        }
       }
 
       const validProfileTypes: UserRole[] = ["client", "provider"];
@@ -107,7 +131,11 @@ export class UserService {
     });
   }
 
-  async update(id: string, data: Partial<User>): Promise<User | null> {
+  async update(
+    id: string,
+    data: Partial<User>,
+    requestingUserId?: string
+  ): Promise<User | null> {
     const user = await this.userRepository.findOne({
       where: { id },
       relations: ["address", "services", "services.category"],
@@ -131,6 +159,33 @@ export class UserService {
       );
     }
 
+    if (data.role) {
+      const privilegedRoles: UserRole[] = ["nanal"];
+      const isChangingToPrivileged = privilegedRoles.includes(data.role);
+      const isCurrentlyPrivileged = privilegedRoles.includes(user.role);
+
+      if (isChangingToPrivileged || isCurrentlyPrivileged) {
+        if (!requestingUserId) {
+          throw new HttpError(
+            "Apenas usuários autenticados com permissões de administrador podem alterar roles privilegiadas",
+            403
+          );
+        }
+
+        const requestingUser = await this.userRepository.findOne({
+          where: { id: requestingUserId },
+          select: ["id", "role"],
+        });
+
+        if (!requestingUser || !privilegedRoles.includes(requestingUser.role)) {
+          throw new HttpError(
+            "Você não tem permissão para alterar roles privilegiadas",
+            403
+          );
+        }
+      }
+    }
+
     if (data.address) {
       if (user.address) {
         Object.assign(user.address, data.address);
@@ -152,6 +207,28 @@ export class UserService {
   }
 
   async delete(id: string): Promise<boolean> {
+    // Verificar se o usuário existe
+    const user = await this.userRepository.findOne({
+      where: { id },
+      relations: ["address", "services", "services.category"],
+    });
+
+    if (!user) {
+      throw new HttpError("Usuário não encontrado", 404);
+    }
+
+    // Deletar serviços do usuário
+    if (user.services && user.services.length > 0) {
+      const serviceRepository = AppDataSource.getRepository(Service);
+      await serviceRepository.delete(user.services.map((s) => s.id));
+    }
+
+    // Deletar endereço do usuário
+    if (user.address) {
+      await this.addressRepository.delete(user.address.id);
+    }
+
+    // Deletar o usuário
     const result = await this.userRepository.delete(id);
     return !!result.affected;
   }
