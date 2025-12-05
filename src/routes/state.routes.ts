@@ -1,16 +1,38 @@
 import { Router } from "express";
 import { StateController } from "../controllers/state.controller";
+import { authenticate } from "../middlewares/authenticate";
+import { authorizeRoles } from "../middlewares/authorizeRoles";
 
 export const stateRoutes = Router();
 
-stateRoutes.post("/", StateController.create);
+stateRoutes.post(
+  "/",
+  authenticate,
+  authorizeRoles("nanal"),
+  StateController.create
+);
 
-stateRoutes.post("/createMany", StateController.createMany);
+stateRoutes.post(
+  "/createMany",
+  authenticate,
+  authorizeRoles("nanal"),
+  StateController.createMany
+);
 
 stateRoutes.get("/", StateController.getAll);
 
 stateRoutes.get("/:id", StateController.getById);
 
-stateRoutes.put("/:id", StateController.update);
+stateRoutes.put(
+  "/:id",
+  authenticate,
+  authorizeRoles("nanal"),
+  StateController.update
+);
 
-stateRoutes.delete("/:id", StateController.delete);
+stateRoutes.delete(
+  "/:id",
+  authenticate,
+  authorizeRoles("nanal"),
+  StateController.delete
+);
