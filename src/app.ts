@@ -9,11 +9,16 @@ import { errorMiddleware } from "./middlewares/errorMiddleware";
 import { routes } from "./routes";
 
 const app = express();
+app.set("trust proxy", 1);
 
 app.use(helmet());
 app.use(
   cors({
-    origin: ["https://conecta-theta-lime.vercel.app", "http://localhost:3000"],
+    origin: [
+      "https://prolocal.com.br",
+      "https://www.prolocal.com.br",
+      "http://localhost:3000",
+    ],
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
     credentials: true,
   })
