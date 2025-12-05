@@ -4,3 +4,4 @@ build/
 coverage/
 # Environment variables
 .env
+docs

@@ -8,14 +8,14 @@ export const stateRoutes = Router();
 stateRoutes.post(
   "/",
   authenticate,
-  authorizeRoles("seupai"),
+  authorizeRoles("nanal"),
   StateController.create
 );
 
 stateRoutes.post(
-  "/createManyauthenticate",
+  "/createMany",
   authenticate,
-  authorizeRoles("seupai"),
+  authorizeRoles("nanal"),
   StateController.createMany
 );
 
@@ -26,13 +26,13 @@ stateRoutes.get("/:id", StateController.getById);
 stateRoutes.put(
   "/:id",
   authenticate,
-  authorizeRoles("seupai"),
+  authorizeRoles("nanal"),
   StateController.update
 );
 
 stateRoutes.delete(
   "/:id",
   authenticate,
-  authorizeRoles("seupai"),
+  authorizeRoles("nanal"),
   StateController.delete
 );

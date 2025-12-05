@@ -1,21 +1,21 @@
 import { Router } from "express";
 import { CategoryController } from "../controllers/category.controller";
-import { authorizeRoles } from "../middlewares/authorizeRoles";
 import { authenticate } from "../middlewares/authenticate";
+import { authorizeRoles } from "../middlewares/authorizeRoles";
 
 export const categoryRoutes = Router();
 
 categoryRoutes.post(
   "/",
   authenticate,
-  authorizeRoles("seupai"),
+  authorizeRoles("nanal"),
   CategoryController.create
 );
 
 categoryRoutes.post(
   "/createMany",
   authenticate,
-  authorizeRoles("seupai"),
+  authorizeRoles("nanal"),
   CategoryController.createMany
 );
 
@@ -26,13 +26,13 @@ categoryRoutes.get("/:id", CategoryController.getById);
 categoryRoutes.put(
   "/:id",
   authenticate,
-  authorizeRoles("seupai"),
+  authorizeRoles("nanal"),
   CategoryController.update
 );
 
 categoryRoutes.delete(
   "/:id",
   authenticate,
-  authorizeRoles("seupai"),
+  authorizeRoles("nanal"),
   CategoryController.delete
 );

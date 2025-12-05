@@ -1,25 +1,27 @@
 import {
-  Entity,
-  PrimaryGeneratedColumn,
   Column,
-  ManyToOne,
   CreateDateColumn,
+  Entity,
+  ManyToOne,
+  PrimaryGeneratedColumn,
   UpdateDateColumn,
+  Index,
 } from "typeorm";
-import { Company } from "./Company";
-import { Provider } from "./Provider";
 import { Category } from "./Category";
+import { User } from "./User";
+import { HighlightLevel } from "../types/HighlightLevel";
 
 @Entity("services")
 export class Service {
   @PrimaryGeneratedColumn("uuid")
   id: string;
 
+  @Index()
   @Column({ type: "varchar", length: 100 })
   title: string;
 
   @Column({ nullable: true, type: "varchar", length: 100 })
-  description: string;
+  description?: string;
 
   @Column("decimal", { precision: 10, scale: 2 })
   price: number;
@@ -31,16 +33,21 @@ export class Service {
   })
   typeOfChange: string;
 
+  @Column({ type: "boolean", default: false })
+  isHighlighted: boolean;
+
+  @Column({
+    type: "enum",
+    enum: HighlightLevel,
+    nullable: true,
+  })
+  highlightLevel?: HighlightLevel;
+
   @ManyToOne(() => Category, (category) => category.services)
   category: Category;
 
-  @ManyToOne(() => Company, (company) => company.services, { nullable: true })
-  company?: Company;
-
-  @ManyToOne(() => Provider, (provider) => provider.services, {
-    nullable: true,
-  })
-  provider?: Provider;
+  @ManyToOne(() => User, (user) => user.services)
+  user: User;
 
   @CreateDateColumn()
   createdAt: Date;

@@ -8,15 +8,8 @@ const serviceService = new ServiceService();
 
 export class ServiceController {
   static async create(req: Request, res: Response) {
-    const {
-      title,
-      price,
-      typeOfChange,
-      description,
-      categoryId,
-      companyId,
-      providerId,
-    } = req.body;
+    const { title, price, typeOfChange, description, categoryId, userId } =
+      req.body;
 
     if (!typeOfChange || typeOfChange.trim() === "") {
       throw new HttpError("O tipo de cobrança é obrigatório");
@@ -38,11 +31,8 @@ export class ServiceController {
       throw new HttpError("A categoria é obrigatória");
     }
 
-    if (!providerId && !companyId) {
-      throw new HttpError(
-        "O serviço deve pertencer a uma empresa ou um prestador de serviço",
-        400
-      );
+    if (!userId) {
+      throw new HttpError("Id do usuário é obrigatório", 400);
     }
 
     const service = await serviceService.create({
@@ -50,8 +40,7 @@ export class ServiceController {
       price,
       description,
       categoryId,
-      companyId,
-      providerId,
+      userId,
       typeOfChange,
     });
     return res.status(201).json(service);
@@ -139,5 +128,49 @@ export class ServiceController {
     const { providerId } = req.params;
     const services = await serviceService.findByProvider(providerId);
     return res.json(services);
+  }
+
+  static async updateHighlight(req: Request, res: Response) {
+    const { id } = req.params;
+    const { isHighlighted, highlightLevel } = req.body;
+
+    if (!id || !isUUID(id)) {
+      return res.status(400).json({
+        message: "Id do serviço não informado ou formato inválido",
+      });
+    }
+
+    if (typeof isHighlighted !== "boolean") {
+      return res.status(400).json({
+        message: "isHighlighted deve ser um boolean",
+      });
+    }
+
+    if (
+      isHighlighted &&
+      !["pro", "premium", "enterprise"].includes(highlightLevel)
+    ) {
+      return res.status(400).json({
+        message: "highlightLevel incorreto",
+      });
+    }
+
+    try {
+      const service = await serviceService.updateHighlight(
+        id,
+        isHighlighted,
+        highlightLevel
+      );
+
+      if (!service) {
+        return res.status(404).json({ message: "Serviço não encontrado" });
+      }
+
+      return res.json(service);
+    } catch (error: any) {
+      const statusCode = error.statusCode || 500;
+      const message = error.message || "Erro ao atualizar destaque";
+      return res.status(statusCode).json({ message });
+    }
   }
 }

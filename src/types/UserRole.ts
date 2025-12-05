@@ -1,1 +1,1 @@
-export type UserRole = "client" | "company" | "provider" | "seupai";
+export type UserRole = "client" | "provider" | "nanal";

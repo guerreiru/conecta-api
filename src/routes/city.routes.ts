@@ -8,14 +8,14 @@ export const cityRoutes = Router();
 cityRoutes.post(
   "/",
   authenticate,
-  authorizeRoles("seupai"),
+  authorizeRoles("nanal"),
   CityController.create
 );
 
 cityRoutes.post(
   "/createMany",
   authenticate,
-  authorizeRoles("seupai"),
+  authorizeRoles("nanal"),
   CityController.createMany
 );
 
@@ -28,13 +28,13 @@ cityRoutes.get("/:id", CityController.getById);
 cityRoutes.put(
   "/:id",
   authenticate,
-  authorizeRoles("seupai"),
+  authorizeRoles("nanal"),
   CityController.update
 );
 
 cityRoutes.delete(
   "/:id",
   authenticate,
-  authorizeRoles("seupai"),
+  authorizeRoles("nanal"),
   CityController.delete
 );

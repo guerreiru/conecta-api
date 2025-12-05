@@ -24,6 +24,7 @@ export class UserController {
       name,
       email,
       password,
+      ...req.body,
     });
 
     return res.status(201).json(user);
@@ -59,7 +60,7 @@ export class UserController {
         message: "Id do usuário não informado ou formato inválido",
       });
     }
-    const updated = await userService.update(id, req.body);
+    const updated = await userService.update(id, req.body, req.user?.id);
 
     if (!updated) {
       return res.status(404).json({ message: "Usuário não encontrado" });

@@ -5,6 +5,7 @@ import {
   ManyToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
+  Index,
 } from "typeorm";
 import { State } from "./State";
 
@@ -13,6 +14,7 @@ export class City {
   @PrimaryGeneratedColumn("uuid")
   id: string;
 
+  @Index()
   @Column({ type: "varchar", length: 100 })
   name: string;
 

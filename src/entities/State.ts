@@ -5,6 +5,7 @@ import {
   OneToMany,
   CreateDateColumn,
   UpdateDateColumn,
+  Index,
 } from "typeorm";
 import { City } from "./City";
 
@@ -13,9 +14,10 @@ export class State {
   @PrimaryGeneratedColumn("uuid")
   id: string;
 
-  @Column({ unique: true, type: "varchar", length: 100 })
+  @Column({ unique: true, type: "varchar", length: 2 })
   acronym: string;
 
+  @Index()
   @Column({ unique: true, type: "varchar", length: 100 })
   name: string;
 
