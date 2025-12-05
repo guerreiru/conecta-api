@@ -57,6 +57,11 @@ export const verifyAccessToken = (token: string): TokenPayload => {
       throw new HttpError(AUTH_CONFIG.ERRORS.TOKEN_INVALID, 403);
     }
 
+    const validRoles: UserRole[] = ["client", "provider", "nanal"];
+    if (!validRoles.includes(decoded.role)) {
+      throw new HttpError("Role inválida no token", 403);
+    }
+
     return decoded;
   } catch (error) {
     if (error instanceof TokenExpiredError) {
@@ -75,6 +80,11 @@ export const verifyRefreshToken = (token: string): TokenPayload => {
 
     if (!decoded.id || !decoded.role) {
       throw new HttpError(AUTH_CONFIG.ERRORS.TOKEN_INVALID, 401);
+    }
+
+    const validRoles: UserRole[] = ["client", "provider", "nanal"];
+    if (!validRoles.includes(decoded.role)) {
+      throw new HttpError("Role inválida no token", 401);
     }
 
     return decoded;
