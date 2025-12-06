@@ -128,8 +128,6 @@ export class AuthController {
   }
 
   static async changeEmail(req: Request, res: Response) {
-    console.log("AQUI");
-
     const userId = req.user?.id;
     const { newEmail, currentPassword } = req.body;
 
