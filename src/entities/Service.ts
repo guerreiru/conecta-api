@@ -43,6 +43,19 @@ export class Service {
   })
   highlightLevel?: HighlightLevel;
 
+  @Column({
+    type: "enum",
+    enum: ["all", "in_person", "online"],
+    default: "in_person",
+  })
+  serviceType: "all" | "in_person" | "online";
+
+  @Column("decimal", { precision: 3, scale: 2, default: 0 })
+  averageRating: number;
+
+  @Column({ type: "int", default: 0 })
+  reviewCount: number;
+
   @ManyToOne(() => Category, (category) => category.services)
   category: Category;
 
