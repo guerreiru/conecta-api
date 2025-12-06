@@ -8,8 +8,15 @@ const serviceService = new ServiceService();
 
 export class ServiceController {
   static async create(req: Request, res: Response) {
-    const { title, price, typeOfChange, description, categoryId, userId } =
-      req.body;
+    const {
+      title,
+      price,
+      typeOfChange,
+      description,
+      categoryId,
+      userId,
+      serviceType,
+    } = req.body;
 
     if (!typeOfChange || typeOfChange.trim() === "") {
       throw new HttpError("O tipo de cobrança é obrigatório");
@@ -42,6 +49,7 @@ export class ServiceController {
       categoryId,
       userId,
       typeOfChange,
+      serviceType,
     });
     return res.status(201).json(service);
   }
@@ -70,19 +78,38 @@ export class ServiceController {
   }
 
   static async search(req: Request, res: Response) {
-    const { stateId, cityId, categoryId, searchTerm } = req.query;
-
-    if (!stateId || !cityId) {
-      return res
-        .status(400)
-        .json({ message: "stateId e cityId são obrigatórios" });
-    }
+    const {
+      stateId,
+      cityId,
+      categoryId,
+      searchTerm,
+      page,
+      limit,
+      priceMin,
+      priceMax,
+      minRating,
+      sortBy,
+      serviceType,
+    } = req.query;
 
     const results = await serviceService.searchServices({
       stateId: stateId as string,
       cityId: cityId as string,
       categoryId: categoryId as string,
       searchTerm: searchTerm as string,
+      page: page ? Number(page) : 1,
+      limit: limit ? Number(limit) : 10,
+      priceMin: priceMin ? Number(priceMin) : undefined,
+      priceMax: priceMax ? Number(priceMax) : undefined,
+      minRating: minRating ? Number(minRating) : undefined,
+      sortBy:
+        (sortBy as
+          | "relevance"
+          | "price_asc"
+          | "price_desc"
+          | "rating_desc"
+          | "newest") || "relevance",
+      serviceType: (serviceType as "all" | "in_person" | "online") || undefined,
     });
 
     return res.json(results);
