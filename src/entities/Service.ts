@@ -3,12 +3,14 @@ import {
   CreateDateColumn,
   Entity,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
   Index,
 } from "typeorm";
 import { Category } from "./Category";
 import { User } from "./User";
+import { Review } from "./Review";
 import { HighlightLevel } from "../types/HighlightLevel";
 
 @Entity("services")
@@ -61,6 +63,9 @@ export class Service {
 
   @ManyToOne(() => User, (user) => user.services)
   user: User;
+
+  @OneToMany(() => Review, (review) => review.service, { nullable: true })
+  reviews?: Review[];
 
   @CreateDateColumn()
   createdAt: Date;
