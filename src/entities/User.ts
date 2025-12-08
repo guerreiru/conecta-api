@@ -10,6 +10,7 @@ import {
 } from "typeorm";
 import { Address } from "./Address";
 import { Service } from "./Service";
+import { Review } from "./Review";
 
 export type UserRole = "client" | "provider";
 
@@ -45,6 +46,9 @@ export class User {
 
   @OneToMany(() => Service, (service) => service.user, { nullable: true })
   services?: Service[];
+
+  @OneToMany(() => Review, (review) => review.user, { nullable: true })
+  reviews?: Review[];
 
   @Column({ nullable: true, type: "varchar" })
   refreshToken?: string | null;
