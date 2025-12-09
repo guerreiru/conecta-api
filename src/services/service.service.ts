@@ -196,7 +196,6 @@ export class ServiceService {
 
     let hasWhere = false;
 
-    // Filtro por localização
     if (stateId && cityId) {
       query.where(
         "(userAddress.stateId = :stateId AND userAddress.cityId = :cityId)",
@@ -205,7 +204,6 @@ export class ServiceService {
       hasWhere = true;
     }
 
-    // Filtro por categoria
     if (categoryId && isUUID(categoryId)) {
       this.addCondition(query, hasWhere, "category.id = :categoryId", {
         categoryId,
@@ -213,7 +211,6 @@ export class ServiceService {
       hasWhere = true;
     }
 
-    // Filtro por termo de busca
     if (searchTerm) {
       const condition = new Brackets((qb) => {
         qb.where("service.title ILIKE :searchTerm", {
@@ -231,7 +228,6 @@ export class ServiceService {
       }
     }
 
-    // Filtro por preço
     if (priceMin !== undefined) {
       this.addCondition(query, hasWhere, "service.price >= :priceMin", {
         priceMin,
@@ -246,7 +242,6 @@ export class ServiceService {
       hasWhere = true;
     }
 
-    // Filtro por avaliação
     if (minRating !== undefined && minRating > 0) {
       this.addCondition(
         query,
@@ -257,8 +252,7 @@ export class ServiceService {
       hasWhere = true;
     }
 
-    // Filtro por tipo de atendimento
-    if (serviceType) {
+    if (serviceType && serviceType !== "all") {
       this.addCondition(query, hasWhere, "service.serviceType = :serviceType", {
         serviceType,
       });
@@ -286,12 +280,10 @@ export class ServiceService {
     sortBy: SearchParams["sortBy"]
   ): Service[] {
     return services.sort((a, b) => {
-      // Sempre destacar serviços highlighted primeiro
       if (a.isHighlighted !== b.isHighlighted) {
         return a.isHighlighted ? -1 : 1;
       }
 
-      // Se ambos destacados, ordenar por nível primeiro
       if (
         a.isHighlighted &&
         b.isHighlighted &&
@@ -307,7 +299,6 @@ export class ServiceService {
         }
       }
 
-      // Aplicar ordenação solicitada
       return this.applySortStrategy(a, b, sortBy || "relevance");
     });
   }
@@ -369,10 +360,8 @@ export class ServiceService {
       service.category = category;
     }
 
-    // Sanitizar campos protegidos contra manipulação
     const { categoryId, isHighlighted, highlightLevel, ...rest } = data;
 
-    // Se tentar alterar campos protegidos, bloquear
     if (isHighlighted !== undefined || highlightLevel !== undefined) {
       throw new HttpError(
         "Campos de destaque só podem ser alterados por administradores",
@@ -408,7 +397,6 @@ export class ServiceService {
       throw new HttpError("Serviço não encontrado", 404);
     }
 
-    // Validação: se destacado, highlightLevel é obrigatório
     if (isHighlighted && !highlightLevel) {
       throw new HttpError(
         "highlightLevel é obrigatório quando isHighlighted é true",
@@ -416,7 +404,6 @@ export class ServiceService {
       );
     }
 
-    // Se não está destacado, limpar highlightLevel
     if (!isHighlighted) {
       service.isHighlighted = false;
       service.highlightLevel = undefined;

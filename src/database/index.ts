@@ -3,6 +3,7 @@ import { DataSource } from "typeorm";
 import { Address } from "../entities/Address";
 import { Category } from "../entities/Category";
 import { City } from "../entities/City";
+import { Review } from "../entities/Review";
 import { Service } from "../entities/Service";
 import { State } from "../entities/State";
 import { User } from "../entities/User";
@@ -14,7 +15,7 @@ export const AppDataSource = new DataSource({
   url: process.env.DATABASE_URL,
   synchronize: true,
   logging: false,
-  entities: [Address, Category, City, Service, State, User],
+  entities: [Address, Category, City, Review, Service, State, User],
   migrations: [],
   subscribers: [],
   ssl:

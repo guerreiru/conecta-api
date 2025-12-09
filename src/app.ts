@@ -14,11 +14,7 @@ app.set("trust proxy", 1);
 app.use(helmet());
 app.use(
   cors({
-    origin: [
-      "https://prolocal.com.br",
-      "https://www.prolocal.com.br",
-      "http://localhost:3000",
-    ],
+    origin: ["https://prolocal.com.br", "https://www.prolocal.com.br"],
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
     credentials: true,
   })
