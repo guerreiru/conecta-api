@@ -138,26 +138,19 @@ export class ReviewService {
     { rating, comment }: UpdateReviewDTO
   ) {
     const review = await this.reviewRepository.findOne({
-      where: { id: reviewId },
+      where: { id: reviewId, user: { id: userId } },
       relations: ["user", "service"],
     });
 
     if (!review) {
-      throw new HttpError("Avaliação não encontrada", 404);
+      throw new HttpError("Avaliação não encontrada ou sem permissão", 404);
     }
 
-    if (review.user.id !== userId) {
-      throw new HttpError("Você não pode editar esta avaliação", 403);
-    }
+    if (comment !== undefined) {
+      const trimmedComment = comment ? String(comment).trim() : null;
 
-    if (rating !== undefined && (rating < 1 || rating > 5)) {
-      throw new HttpError("Rating deve estar entre 1 e 5", 400);
-    }
-
-    if (comment !== undefined && comment !== null) {
-      const trimmedComment = comment.trim();
-      if (trimmedComment.length === 0) {
-        review.comment = undefined;
+      if (trimmedComment === null || trimmedComment.length === 0) {
+        review.comment = null;
       } else if (trimmedComment.length > 200) {
         throw new HttpError(
           "O comentário deve ter no máximo 200 caracteres",
@@ -169,6 +162,9 @@ export class ReviewService {
     }
 
     if (rating !== undefined) {
+      if (rating < 1 || rating > 5) {
+        throw new HttpError("Rating deve estar entre 1 e 5", 400);
+      }
       review.rating = rating;
     }
 
@@ -176,7 +172,18 @@ export class ReviewService {
 
     await this.updateServiceStats(review.service.id);
 
-    return updatedReview;
+    if (updatedReview) {
+      const { user: originalUser, ...reviewData } = updatedReview;
+      const { refreshToken, password, ...safeUser } = originalUser;
+
+      return {
+        ...reviewData,
+        user: safeUser,
+        serviceId: reviewData.service.id,
+      };
+    }
+
+    return null;
   }
 
   async deleteReview(reviewId: string, userId: string): Promise<void> {
