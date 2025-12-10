@@ -198,7 +198,7 @@ export class ServiceService {
 
     if (stateId && cityId) {
       query.where(
-        "(userAddress.stateId = :stateId AND userAddress.cityId = :cityId)",
+        "userAddress.stateId = :stateId AND userAddress.cityId = :cityId",
         { stateId, cityId }
       );
       hasWhere = true;
