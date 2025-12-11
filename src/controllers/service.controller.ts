@@ -3,6 +3,7 @@ import { ServiceService } from "../services/service.service";
 import { HttpError } from "../utils/httpError";
 import { isValidPrice } from "../utils/isValidPrice";
 import { isUUID } from "class-validator";
+import { HighlightLevel } from "../types/HighlightLevel";
 
 const serviceService = new ServiceService();
 
@@ -16,6 +17,7 @@ export class ServiceController {
       categoryId,
       userId,
       serviceType,
+      requestHighlight,
     } = req.body;
 
     if (!typeOfChange || typeOfChange.trim() === "") {
@@ -50,6 +52,7 @@ export class ServiceController {
       userId,
       typeOfChange,
       serviceType,
+      requestHighlight: requestHighlight === true,
     });
     return res.status(201).json(service);
   }
@@ -175,7 +178,7 @@ export class ServiceController {
 
     if (
       isHighlighted &&
-      !["pro", "premium", "enterprise"].includes(highlightLevel)
+      !Object.values(HighlightLevel).includes(highlightLevel)
     ) {
       return res.status(400).json({
         message: "highlightLevel incorreto",
@@ -197,6 +200,138 @@ export class ServiceController {
     } catch (error: any) {
       const statusCode = error.statusCode || 500;
       const message = error.message || "Erro ao atualizar destaque";
+      return res.status(statusCode).json({ message });
+    }
+  }
+
+  static async activateService(req: Request, res: Response) {
+    const { id } = req.params;
+    const userId = req.user?.id;
+
+    if (!userId) {
+      throw new HttpError("Usuário não autenticado", 401);
+    }
+
+    if (!id || !isUUID(id)) {
+      return res.status(400).json({
+        message: "Id do serviço não informado ou formato inválido",
+      });
+    }
+
+    try {
+      const service = await serviceService.activateService(id, userId);
+
+      if (!service) {
+        return res.status(404).json({ message: "Serviço não encontrado" });
+      }
+
+      return res.json(service);
+    } catch (error: any) {
+      const statusCode = error.statusCode || 500;
+      const message = error.message || "Erro ao ativar serviço";
+      return res.status(statusCode).json({ message });
+    }
+  }
+
+  static async deactivateService(req: Request, res: Response) {
+    const { id } = req.params;
+    const userId = req.user?.id;
+
+    if (!userId) {
+      throw new HttpError("Usuário não autenticado", 401);
+    }
+
+    if (!id || !isUUID(id)) {
+      return res.status(400).json({
+        message: "Id do serviço não informado ou formato inválido",
+      });
+    }
+
+    try {
+      const service = await serviceService.deactivateService(id, userId);
+
+      if (!service) {
+        return res.status(404).json({ message: "Serviço não encontrado" });
+      }
+
+      return res.json(service);
+    } catch (error: any) {
+      const statusCode = error.statusCode || 500;
+      const message = error.message || "Erro ao desativar serviço";
+      return res.status(statusCode).json({ message });
+    }
+  }
+
+  static async getInactiveServices(req: Request, res: Response) {
+    const userId = req.user?.id;
+
+    if (!userId) {
+      throw new HttpError("Usuário não autenticado", 401);
+    }
+
+    try {
+      const services = await serviceService.findInactiveByProvider(userId);
+      return res.json(services);
+    } catch (error: any) {
+      const statusCode = error.statusCode || 500;
+      const message = error.message || "Erro ao buscar serviços inativos";
+      return res.status(statusCode).json({ message });
+    }
+  }
+
+  /**
+   * Usuário ativa/desativa destaque em serviço próprio
+   * PATCH /services/:id/highlight
+   * Body: { enable: boolean }
+   */
+  static async toggleHighlight(req: Request, res: Response) {
+    const { id } = req.params;
+    const { enable } = req.body;
+    const userId = req.user?.id;
+
+    if (!userId) {
+      throw new HttpError("Usuário não autenticado", 401);
+    }
+
+    if (!id || !isUUID(id)) {
+      return res.status(400).json({
+        message: "Id do serviço não informado ou formato inválido",
+      });
+    }
+
+    if (typeof enable !== "boolean") {
+      return res.status(400).json({
+        message: "Campo 'enable' deve ser um booleano",
+      });
+    }
+
+    try {
+      const service = await serviceService.toggleHighlight(id, userId, enable);
+      return res.json(service);
+    } catch (error: any) {
+      const statusCode = error.statusCode || 500;
+      const message = error.message || "Erro ao modificar destaque";
+      return res.status(statusCode).json({ message });
+    }
+  }
+
+  /**
+   * Retorna estatísticas de destaques do usuário
+   * GET /services/highlights/stats
+   */
+  static async getHighlightStats(req: Request, res: Response) {
+    const userId = req.user?.id;
+
+    if (!userId) {
+      throw new HttpError("Usuário não autenticado", 401);
+    }
+
+    try {
+      const stats = await serviceService.getHighlightStats(userId);
+      return res.json(stats);
+    } catch (error: any) {
+      const statusCode = error.statusCode || 500;
+      const message = error.message || "Erro ao buscar estatísticas";
       return res.status(statusCode).json({ message });
     }
   }
