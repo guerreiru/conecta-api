@@ -11,6 +11,7 @@ import {
 import { Address } from "./Address";
 import { Service } from "./Service";
 import { Review } from "./Review";
+import { Subscription } from "./Subscription";
 
 export type UserRole = "client" | "provider";
 
@@ -49,6 +50,11 @@ export class User {
 
   @OneToMany(() => Review, (review) => review.user, { nullable: true })
   reviews?: Review[];
+
+  @OneToOne(() => Subscription, (subscription) => subscription.user, {
+    nullable: true,
+  })
+  subscription?: Subscription;
 
   @Column({ nullable: true, type: "varchar" })
   refreshToken?: string | null;
