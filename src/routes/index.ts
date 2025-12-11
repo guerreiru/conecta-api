@@ -5,6 +5,7 @@ import { cityRoutes } from "./city.routes";
 import { reviewRoutes } from "./review.routes";
 import { serviceRoutes } from "./service.routes";
 import { stateRoutes } from "./state.routes";
+import { subscriptionRoutes } from "./subscription.routes";
 import { userRoutes } from "./user.routes";
 
 export const routes = Router();
@@ -15,4 +16,5 @@ routes.use("/cities", cityRoutes);
 routes.use("/reviews", reviewRoutes);
 routes.use("/services", serviceRoutes);
 routes.use("/states", stateRoutes);
+routes.use("/subscriptions", subscriptionRoutes);
 routes.use("/users", userRoutes);

@@ -6,6 +6,7 @@ import { City } from "../entities/City";
 import { Review } from "../entities/Review";
 import { Service } from "../entities/Service";
 import { State } from "../entities/State";
+import { Subscription } from "../entities/Subscription";
 import { User } from "../entities/User";
 
 dotenv.config();
@@ -15,7 +16,16 @@ export const AppDataSource = new DataSource({
   url: process.env.DATABASE_URL,
   synchronize: true,
   logging: false,
-  entities: [Address, Category, City, Review, Service, State, User],
+  entities: [
+    Address,
+    Category,
+    City,
+    Review,
+    Service,
+    State,
+    Subscription,
+    User,
+  ],
   migrations: [],
   subscribers: [],
   ssl:
