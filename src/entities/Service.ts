@@ -28,6 +28,9 @@ export class Service {
   @Column("decimal", { precision: 10, scale: 2 })
   price: number;
 
+  @Column({ type: "boolean", default: true })
+  isActive?: boolean;
+
   @Column({
     type: "varchar",
     length: 100,
