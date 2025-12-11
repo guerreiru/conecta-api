@@ -1,5 +1,5 @@
 export enum HighlightLevel {
-  PRO = "pro",
+  PLUS = "plus",
   PREMIUM = "premium",
   ENTERPRISE = "enterprise",
 }
