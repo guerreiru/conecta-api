@@ -20,6 +20,9 @@ app.use(
   })
 );
 
+// Webhook do Stripe precisa de raw body para validação de assinatura
+app.use("/subscriptions/webhook", express.raw({ type: "application/json" }));
+
 app.use(express.json());
 app.use(cookieParser());
 
