@@ -540,18 +540,13 @@ export class ServiceService {
       throw new HttpError("Este serviço já está ativo", 400);
     }
 
-    // Buscar assinatura do usuário
-    const subscription = await this.subscriptionRepository.findOne({
-      where: { user: { id: userId } },
-    });
+    // ============================================================
+    // VALIDAÇÃO SOMENTE PLANO FREE (limite de 1 serviço ativo)
+    // Planos pagos desabilitados temporariamente
+    // ============================================================
 
-    if (!subscription) {
-      throw new HttpError("Assinatura não encontrada", 404);
-    }
-
-    // Determinar limite baseado no plano
-    const planConfig = PLAN_CONFIGS[subscription.plan];
-    const serviceLimit = planConfig.serviceLimit ?? Infinity;
+    // Aplicar limite do plano FREE
+    const FREE_SERVICE_LIMIT = PLAN_CONFIGS[PlanType.FREE].serviceLimit!;
 
     // Contar serviços ativos atuais
     const activeServicesCount = await this.serviceRepository.count({
@@ -559,12 +554,43 @@ export class ServiceService {
     });
 
     // Validar se pode ativar mais serviços
-    if (activeServicesCount >= serviceLimit) {
+    if (activeServicesCount >= FREE_SERVICE_LIMIT) {
       throw new HttpError(
-        `Limite de ${serviceLimit} serviço(s) ativo(s) atingido para o plano ${subscription.plan.toUpperCase()}. Desative outro serviço ou faça upgrade do plano.`,
+        `Limite de ${FREE_SERVICE_LIMIT} serviço ativo atingido. Em breve disponibilizaremos planos para ter mais serviços ativos.`,
         403
       );
     }
+
+    // ============================================================
+    // VALIDAÇÃO DE PLANOS PAGOS - DESABILITADA
+    // Quando lançar planos pagos, descomentar o código abaixo
+    // ============================================================
+
+    // // Buscar assinatura do usuário
+    // const subscription = await this.subscriptionRepository.findOne({
+    //   where: { user: { id: userId } },
+    // });
+
+    // if (!subscription) {
+    //   throw new HttpError("Assinatura não encontrada", 404);
+    // }
+
+    // // Determinar limite baseado no plano
+    // const planConfig = PLAN_CONFIGS[subscription.plan];
+    // const serviceLimit = planConfig.serviceLimit ?? Infinity;
+
+    // // Contar serviços ativos atuais
+    // const activeServicesCount = await this.serviceRepository.count({
+    //   where: { user: { id: userId }, isActive: true },
+    // });
+
+    // // Validar se pode ativar mais serviços
+    // if (activeServicesCount >= serviceLimit) {
+    //   throw new HttpError(
+    //     `Limite de ${serviceLimit} serviço(s) ativo(s) atingido para o plano ${subscription.plan.toUpperCase()}. Desative outro serviço ou faça upgrade do plano.`,
+    //     403
+    //   );
+    // }
 
     // Ativar o serviço
     service.isActive = true;
