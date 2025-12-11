@@ -29,18 +29,19 @@ serviceRoutes.get(
   ServiceController.getInactiveServices
 );
 
+// ROTAS DE DESTAQUE DESABILITADAS - Serão lançadas futuramente
 // Rotas de destaque - usuário gerencia seus próprios serviços
-serviceRoutes.patch(
-  "/:id/highlight",
-  authenticate,
-  ServiceController.toggleHighlight
-);
+// serviceRoutes.patch(
+//   "/:id/highlight",
+//   authenticate,
+//   ServiceController.toggleHighlight
+// );
 
-serviceRoutes.get(
-  "/highlights/stats",
-  authenticate,
-  ServiceController.getHighlightStats
-);
+// serviceRoutes.get(
+//   "/highlights/stats",
+//   authenticate,
+//   ServiceController.getHighlightStats
+// );
 
 // Rota protegida - apenas admins (override manual de destaque)
 serviceRoutes.patch(

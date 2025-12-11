@@ -61,8 +61,6 @@ export class ServiceService {
     let user: User | null = null;
     let canHighlight = false;
     let highlightLevel: HighlightLevel | undefined = undefined;
-    undefined;
-    undefined;
 
     if (userId) {
       user = await this.userRepository.findOneBy({ id: userId });
@@ -70,81 +68,101 @@ export class ServiceService {
         throw new HttpError("Usuário não encontrado", 404);
       }
 
+      // ============================================================
+      // VALIDAÇÃO SOMENTE PLANO FREE (limite de 1 serviço)
+      // Planos pagos desabilitados temporariamente
+      // ============================================================
+
       // Contar serviços atuais do usuário
       const serviceCount = await this.serviceRepository.count({
         where: { user: { id: userId } },
       });
 
-      // Determinar limites baseado no plano
-      let serviceLimit: number;
-      let highlightLimit: number;
-      let planType: PlanType;
+      // Aplicar limite do plano FREE
+      const FREE_SERVICE_LIMIT = PLAN_CONFIGS[PlanType.FREE].serviceLimit!;
 
-      if (!user.hasActivePlan) {
-        // Sem plano ativo = Plano FREE
-        planType = PlanType.FREE;
-        const planConfig = PLAN_CONFIGS[planType];
-        serviceLimit = planConfig.serviceLimit!;
-        highlightLimit = planConfig.highlightLimit;
-      } else {
-        // Com plano ativo = buscar na tabela subscriptions
-        const subscription = await this.subscriptionRepository.findOne({
-          where: {
-            user: { id: userId },
-            status: SubscriptionStatus.ACTIVE,
-          },
-        });
-
-        if (!subscription) {
-          // Fallback para FREE se não encontrar assinatura ativa
-          planType = PlanType.FREE;
-          const planConfig = PLAN_CONFIGS[planType];
-          serviceLimit = planConfig.serviceLimit!;
-          highlightLimit = planConfig.highlightLimit;
-        } else {
-          planType = subscription.plan;
-          const planConfig = PLAN_CONFIGS[planType];
-          serviceLimit = planConfig.serviceLimit ?? Infinity;
-          highlightLimit = planConfig.highlightLimit;
-          highlightLevel = planConfig.highlightLevel as HighlightLevel;
-        }
-      }
-
-      // Validar limite de serviços
-      if (serviceCount >= serviceLimit) {
+      if (serviceCount >= FREE_SERVICE_LIMIT) {
         throw new HttpError(
-          `Limite de ${serviceLimit} serviço(s) atingido. ${
-            !user.hasActivePlan
-              ? "Assine um plano para cadastrar mais."
-              : "Faça upgrade do seu plano para cadastrar mais serviços."
-          }`,
+          `Limite de ${FREE_SERVICE_LIMIT} serviço atingido. Em breve disponibilizaremos planos para cadastrar mais serviços.`,
           403
         );
       }
 
-      // Validar solicitação de destaque
-      if (requestHighlight) {
-        if (highlightLimit === 0) {
-          throw new HttpError(
-            `Seu plano ${planType.toUpperCase()} não permite destacar serviços. Faça upgrade para usar destaques.`,
-            403
-          );
-        }
+      // ============================================================
+      // VALIDAÇÃO DE PLANOS PAGOS E DESTAQUES - DESABILITADA
+      // Quando lançar planos pagos, descomentar o código abaixo
+      // ============================================================
 
-        // Contar serviços já destacados
-        const highlightedCount = await this.serviceRepository.count({
-          where: { user: { id: userId }, isHighlighted: true },
-        });
+      // // Determinar limites baseado no plano
+      // let serviceLimit: number;
+      // let highlightLimit: number;
+      // let planType: PlanType;
 
-        if (highlightedCount >= highlightLimit) {
-          throw new HttpError(
-            `Limite de ${highlightLimit} destaque(s) atingido para o plano ${planType.toUpperCase()}. Remova o destaque de outro serviço primeiro.`,
-            403
-          );
-        }
+      // if (!user.hasActivePlan) {
+      //   // Sem plano ativo = Plano FREE
+      //   planType = PlanType.FREE;
+      //   const planConfig = PLAN_CONFIGS[planType];
+      //   serviceLimit = planConfig.serviceLimit!;
+      //   highlightLimit = planConfig.highlightLimit;
+      // } else {
+      //   // Com plano ativo = buscar na tabela subscriptions
+      //   const subscription = await this.subscriptionRepository.findOne({
+      //     where: {
+      //       user: { id: userId },
+      //       status: SubscriptionStatus.ACTIVE,
+      //     },
+      //   });
 
-        canHighlight = true;
-      }
+      //   if (!subscription) {
+      //     // Fallback para FREE se não encontrar assinatura ativa
+      //     planType = PlanType.FREE;
+      //     const planConfig = PLAN_CONFIGS[planType];
+      //     serviceLimit = planConfig.serviceLimit!;
+      //     highlightLimit = planConfig.highlightLimit;
+      //   } else {
+      //     planType = subscription.plan;
+      //     const planConfig = PLAN_CONFIGS[planType];
+      //     serviceLimit = planConfig.serviceLimit ?? Infinity;
+      //     highlightLimit = planConfig.highlightLimit;
+      //     highlightLevel = planConfig.highlightLevel as HighlightLevel;
+      //   }
+      // }
+
+      // // Validar limite de serviços
+      // if (serviceCount >= serviceLimit) {
+      //   throw new HttpError(
+      //     `Limite de ${serviceLimit} serviço(s) atingido. ${
+      //       !user.hasActivePlan
+      //         ? "Assine um plano para cadastrar mais."
+      //         : "Faça upgrade do seu plano para cadastrar mais serviços."
+      //     }`,
+      //     403
+      //   );
+      // }
+
+      // // Validar solicitação de destaque
+      // if (requestHighlight) {
+      //   if (highlightLimit === 0) {
+      //     throw new HttpError(
+      //       `Seu plano ${planType.toUpperCase()} não permite destacar serviços. Faça upgrade para usar destaques.`,
+      //       403
+      //     );
+      //   }
+
+      //   // Contar serviços já destacados
+      //   const highlightedCount = await this.serviceRepository.count({
+      //     where: { user: { id: userId }, isHighlighted: true },
+      //   });
+
+      //   if (highlightedCount >= highlightLimit) {
+      //     throw new HttpError(
+      //       `Limite de ${highlightLimit} destaque(s) atingido para o plano ${planType.toUpperCase()}. Remova o destaque de outro serviço primeiro.`,
+      //       403
+      //     );
+      //   }
+
+      //   canHighlight = true;
+      // }
     }
 
     const data: Partial<Service> = {

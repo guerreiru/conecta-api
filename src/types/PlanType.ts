@@ -26,9 +26,9 @@ export const PLAN_CONFIGS: Record<PlanType, PlanConfig> = {
   [PlanType.FREE]: {
     name: "Gratuito",
     price: 0,
-    serviceLimit: 1,
+    serviceLimit: 2,
     highlightLimit: 0, // FREE não pode destacar
-    features: ["1 serviço cadastrado", "Listagem básica"],
+    features: ["2 serviços cadastrados", "Listagem básica"],
   },
   [PlanType.PLUS]: {
     name: "Plus",
