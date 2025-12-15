@@ -31,8 +31,15 @@ export class UserController {
   }
 
   static async getAll(req: Request, res: Response) {
-    const users = await userService.findAll();
-    return res.json(users);
+    const page = Number(req.query.page) || 1;
+    const limit = Number(req.query.limit) || 10;
+
+    const result = await userService.findAllPaginated({
+      page,
+      limit,
+    });
+
+    return res.json(result);
   }
 
   static async getById(req: Request, res: Response) {
@@ -84,5 +91,10 @@ export class UserController {
     }
 
     return res.status(204).send();
+  }
+
+  static async count(req: Request, res: Response) {
+    const userCount = await userService.count();
+    return res.json({ count: userCount });
   }
 }
