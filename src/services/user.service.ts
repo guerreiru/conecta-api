@@ -107,6 +107,31 @@ export class UserService {
     return await this.userRepository.find();
   }
 
+  async findAllPaginated({ page, limit }: { page: number; limit: number }) {
+    const skip = (page - 1) * limit;
+
+    const [users, total] = await this.userRepository.findAndCount({
+      skip,
+      take: limit,
+      order: { createdAt: "DESC" },
+      relations: {
+        address: true,
+        services: {
+          category: true,
+        },
+      },
+    });
+
+    return {
+      data: users,
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+      lastPage: Math.ceil(total / limit),
+    };
+  }
+
   async findById(id: string): Promise<User | null> {
     return await this.userRepository.findOne({
       where: { id },
@@ -231,6 +256,10 @@ export class UserService {
     // Deletar o usuário
     const result = await this.userRepository.delete(id);
     return !!result.affected;
+  }
+
+  async count(): Promise<number> {
+    return await this.userRepository.count();
   }
 
   private async validateStateAndCity(
