@@ -275,6 +275,10 @@ export class ServiceService {
     }
   }
 
+  async count() {
+    return this.serviceRepository.count();
+  }
+
   private buildSearchQuery({
     stateId,
     cityId,
