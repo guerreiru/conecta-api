@@ -118,6 +118,17 @@ export class ServiceController {
     return res.json(results);
   }
 
+  static async count(req: Request, res: Response) {
+    try {
+      const count = await serviceService.count();
+      return res.json({ count });
+    } catch (error: any) {
+      const statusCode = error.statusCode || 500;
+      const message = error.message || "Erro ao contar serviços";
+      return res.status(statusCode).json({ message });
+    }
+  }
+
   static async update(req: Request, res: Response) {
     const { id } = req.params;
 
