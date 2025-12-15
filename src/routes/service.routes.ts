@@ -8,6 +8,12 @@ export const serviceRoutes = Router();
 serviceRoutes.post("/", ServiceController.create);
 serviceRoutes.get("/", ServiceController.getAll);
 serviceRoutes.get("/search", ServiceController.search);
+serviceRoutes.get(
+  "/count",
+  authenticate,
+  authorizeRoles("nanal"),
+  ServiceController.count
+);
 serviceRoutes.get("/provider/:providerId", ServiceController.getByProvider);
 
 // Rotas protegidas - gerenciar ativação de serviços
